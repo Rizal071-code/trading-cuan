@@ -1,0 +1,35 @@
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors');
+const axios = require('axios');
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, { cors: { origin: "*" } });
+
+app.use(cors());
+app.use(express.json());
+
+// Real-time price updates
+async function updatePrices() {
+    try {
+        const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true');
+        io.emit('priceUpdate', response.data);
+    } catch (error) {
+        console.error('Price update error:', error);
+    }
+}
+
+setInterval(updatePrices, 5000); // Update every 5s
+updatePrices(); // Initial load
+
+// Mock order book
+setInterval(() => {
+    io.emit('orderBookUpdate', {
+        bids: Array.from({length: 10}, () => [Math.random()*10000, Math.random()*10]),
+        asks: Array.from({length: 10}, () => [Math.random()*10000, Math.random()*10])
+    });
+}, 2000);
+
+server.listen(5000, () => console.log('ðŸš€ Backend running on port 5000'));
