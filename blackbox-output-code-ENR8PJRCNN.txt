@@ -1,0 +1,6 @@
+npm create vite@latest trading-app -- --template react
+cd trading-app
+npm i
+npm i @metamask/detect-provider ethers tailwindcss postcss autoprefixer
+npm i lightweight-charts react-router-dom lucide-react axios socket.io-client
+npx tailwindcss init -p

@@ -1,0 +1,33 @@
+import { useState, useEffect } from 'react';
+import detectEthereumProvider from '@metamask/detect-provider';
+import { ethers } from 'ethers';
+
+export default function WalletConnect({ setWallet }) {
+  const [provider, setProvider] = useState(null);
+
+  const connectWallet = async () => {
+    const ethProvider = await detectEthereumProvider();
+    if (ethProvider) {
+      await ethProvider.request({ method: 'eth_requestAccounts' });
+      const web3Provider = new ethers.BrowserProvider(ethProvider);
+      const signer = await web3Provider.getSigner();
+      setWallet(await signer.getAddress());
+      setProvider(web3Provider);
+    } else {
+      alert('Install MetaMask!');
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto p-6">
+      {!provider && (
+        <button
+          onClick={connectWallet}
+          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+        >
+          Connect Wallet
+        </button>
+      )}
+    </div>
+  );
+}

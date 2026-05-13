@@ -1,0 +1,105 @@
+import { useEffect, useRef } from 'react';
+import { createChart } from 'lightweight-charts';
+import { DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
+
+export default function TradingView({ prices, socket }) {
+  const chartContainerRef = useRef();
+
+  useEffect(() => {
+    const chart = createChart(chartContainerRef.current, {
+      width: 1200,
+      height: 500,
+      layout: { background: { color: '#0a0a0a' }, textColor: '#d1d4dc' },
+      grid: { vertLines: { color: '#334155' }, horzLines: { color: '#334155' } },
+      timeScale: { borderColor: '#334155' },
+      rightPriceScale: { borderColor: '#334155' },
+    });
+
+    // Mock candlestick data
+    const candlestickSeries = chart.addCandlestickSeries({
+      upColor: '#00ff88', downColor: '#ff4444',
+    });
+
+    candlestickSeries.setData([
+      { time: '2024-01-01', open: 65000, high: 66000, low: 64000, close: 65500 },
+      // Add more data...
+    ]);
+
+    return () => chart.remove();
+  }, []);
+
+  const executeTrade = async (side, amount) => {
+    if (!socket) return;
+    
+    // Simulate DEX trade
+    socket.emit('executeTrade', { side, amount, pair: 'BTC/USDT' });
+    alert(`${side.toUpperCase()} ${amount} BTC executed!`);
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
+      {/* Price Ticker */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-gray-900/50 backdrop-blur-md p-6 rounded-2xl border border-gray-800">
+          <h2 className="text-xl font-semibold mb-4">BTC/USDT</h2>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span>Price:</span>
+              <span className="font-mono text-2xl">${prices?.bitcoin?.usd?.toFixed(2) || '65,432'}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>24h Change:</span>
+              <span className={`font-mono ${prices?.bitcoin?.usd_24h_change > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {prices?.bitcoin?.usd_24h_change?.toFixed(2) || '+2.34'}%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className="bg-gray-900/50 backdrop-blur-md p-6 rounded-2xl border border-gray-800">
+        <div ref={chartContainerRef} className="w-full h-[500px]" />
+      </div>
+
+      {/* Trading Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
+          <h3 className="text-xl font-semibold mb-4">Trade</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm mb-2">Amount</label>
+              <input type="number" className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => executeTrade('buy', 0.01)}
+                className="bg-green-500/20 hover:bg-green-500/40 border-2 border-green-500 text-green-400 px-6 py-4 rounded-xl font-semibold transition-all hover:scale-105"
+              >
+                <TrendingUp size={20} className="inline mr-2" />
+                Buy
+              </button>
+              <button
+                onClick={() => executeTrade('sell', 0.01)}
+                className="bg-red-500/20 hover:bg-red-500/40 border-2 border-red-500 text-red-400 px-6 py-4 rounded-xl font-semibold transition-all hover:scale-105"
+              >
+                <TrendingDown size={20} className="inline mr-2" />
+                Sell
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Order Book */}
+        <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
+          <h3 className="text-xl font-semibold mb-4">Order Book</h3>
+          <div className="space-y-1">
+            <div className="flex justify-between text-green-400 text-sm">10,000.50 <span>0.123</span></div>
+            <div className="flex justify-between text-red-400 text-sm">9,999.20 <span>0.456</span></div>
+            {/* More orders... */}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

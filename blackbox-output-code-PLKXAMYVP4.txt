@@ -1,0 +1,3 @@
+Frontend: Vercel/Netlify (drag-drop)
+Backend: Render Railway (free tier)
+Database: Supabase (free)

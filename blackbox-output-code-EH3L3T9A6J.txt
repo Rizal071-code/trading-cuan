@@ -1,0 +1,25 @@
+import { Link } from 'react-router-dom';
+import { BarChart3, Wallet, User } from 'lucide-react';
+
+export default function Navbar({ wallet }) {
+  return (
+    <nav className="bg-gray-900/50 backdrop-blur-md border-b border-gray-800 p-4">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <Link to="/" className="flex items-center space-x-2 font-bold text-2xl">
+          <BarChart3 size={28} />
+          <span>TradeX</span>
+        </Link>
+        
+        <div className="flex items-center space-x-4">
+          <Link to="/portfolio" className="hover:text-blue-400 transition">Portfolio</Link>
+          {wallet && (
+            <div className="flex items-center space-x-2 bg-blue-500/20 px-3 py-1 rounded-full">
+              <Wallet size={16} />
+              <span className="text-sm">{wallet.slice(0,6)}...{wallet.slice(-4)}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+}
