@@ -1,0 +1,40 @@
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { io } from 'socket.io-client';
+import Navbar from './components/Navbar';
+import TradingView from './components/TradingView';
+import WalletConnect from './components/WalletConnect';
+import Portfolio from './components/Portfolio';
+import './App.css';
+
+function App() {
+  const [socket, setSocket] = useState(null);
+  const [prices, setPrices] = useState({});
+  const [wallet, setWallet] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io('http://localhost:5000');
+    setSocket(newSocket);
+
+    newSocket.on('priceUpdate', (data) => setPrices(data));
+    newSocket.on('orderBookUpdate', (data) => console.log('Orderbook:', data));
+
+    return () => newSocket.close();
+  }, []);
+
+  return (
+    <Router>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white">
+        <Navbar wallet={wallet} />
+        <WalletConnect setWallet={setWallet} />
+        
+        <Routes>
+          <Route path="/" element={<TradingView prices={prices} socket={socket} />} />
+          <Route path="/portfolio" element={<Portfolio wallet={wallet} />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
