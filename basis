@@ -1,0 +1,5 @@
+Frontend: React + Tailwind + Vite
+Backend: Node.js + Express + Socket.io
+Bagan: Bagan Ringan
+Dompet: Web3.js + Ethers.js
+Basis data: LocalStorage (bisa diupgrade ke PostgreSQL)
